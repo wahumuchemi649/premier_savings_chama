@@ -25,7 +25,6 @@ def database_init():
     except Exception as e:
         print(f"An error occurred during database initialization: {e}")
     db.close()
-
-if __name__ == "__main__":
     database_init()
+if __name__ == "__main__":
     app.run(debug=True)
