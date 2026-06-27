@@ -40,7 +40,7 @@ class Loans(Base):
     amount = Column(Numeric(15, 2))
     date_borrowed = Column(Date)
     due_date = Column(Date)
-    status = Column(Enum('active', 'paid', 'defaulted'))
+    status = Column(Enum('active', 'paid', 'defaulted', name='loan_active_status'))
     amount_paid = Column(Numeric(15, 2))
     paid_date = Column(Date)
     guarantor_paid = Column(Boolean, default=False)
@@ -91,7 +91,7 @@ class Financial_Periods(Base):
     period_end = Column(Date, nullable=True)
     closed_by = Column(Integer, ForeignKey('Members.memberId'), nullable=True)
     closed_at = Column(DateTime, default=datetime.utcnow)
-    status = Column(Enum('open', 'closed'), default='open')
+    status = Column(Enum('open', 'closed', name='financial_status'), default='open')
 
     closed_by_member = relationship('Members')
 
