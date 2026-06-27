@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Savings Chama</title>
+    <link rel="stylesheet" href="members.css"/>
+    </head>
+    <body>
+        <div class="header">
+<div>
+<h2>Chama Ledger</h2>
+<p>Savings and Loan Management</p>
+</div>
+<div>
+    <h6>Today</h6>
+    <p><script>document.write(new Date().toLocaleDateString());</script></p>
+</div>
+</div>
+       <nav class="navbar">
+    <div class="hamburger" onclick="toggleMenu()">
+        ☰
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <a href="Dashboard.html">Dashboard</a>
+         <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+        <a href="Members.html">Members</a>
+        <a href="loans.html">Loans</a>
+        <a href="interest.html">Interest</a>
+        <a href="Fines.html">Fines</a>
+    </div>
+</nav>
+<div id="loans">
+    <h2>Loans: <span id="NoOfBorrowers">...</span></h2>
+     <button type="button" onclick="toggleRequestForm()">Request Loan</button>  
+    <div id="requestFormContainer"></div>
+    <p id="loanRequestMessage"></p>
+    <div id="borrower-cards">
+        <!-- JS will inject a card per borrower here -->
+    </div>
+</div>
+    </body>
+    <script>
+        const token = localStorage.getItem('token')
+        if (!token) {
+        window.location.href = 'index.html'  
+        throw new Error('Redirecting to login')
+        }
+        
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('role')
+    
+    if (role === 'Admin') {
+        document.getElementById('adminLink').style.display = 'block'
+    }
+})
+const memberId = localStorage.getItem('memberId')
+
+function formatKsh(amount) {
+    return `Ksh ${parseFloat(amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
+}
+
+function toggleRequestForm() {
+    const container = document.getElementById('requestFormContainer')
+    if (container.innerHTML !== '') {
+        container.innerHTML = ''
+        return
+    }
+    container.innerHTML = `
+        <input type="number" id="loanAmount" placeholder="Enter amount" /><br>
+        <button type="button" onclick="checkViability()">Check Viability</button>
+        <div id="viabilityResult"></div>
+    `
+}
+
+async function checkViability() {
+    const amount = document.getElementById('loanAmount').value
+    if (!amount) {
+        document.getElementById('viabilityResult').textContent = 'Please enter an amount'
+        return
+    }
+
+    const response = await fetch('http://127.0.0.1:5000/Chama/loan_viability', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            memberId: parseInt(memberId),
+            requested_amount: parseFloat(amount)
+        })
+    })
+
+    const data = await response.json()
+    const resultDiv = document.getElementById('viabilityResult')
+
+    if (data.needs_guarantor) {
+        let guarantorOptions = data.suggested_guarantors.map(g =>
+            `<option value="${g.memberId}">${g.first_name} ${g.last_name}</option>`
+        ).join('')
+
+        resultDiv.innerHTML = `
+            <p class="warning">This loan requires a guarantor</p>
+            <p>Your max without guarantor: ${formatKsh(data.remaining_borrowing_power)}</p>
+            <label>Select Guarantor</label>
+            <select id="guarantorSelect">
+                <option value="">-- Select a guarantor --</option>
+                ${guarantorOptions}
+            </select><br><br>
+            <button type="button" onclick="submitLoanRequest(true)">Submit Request</button>
+            <button type="button" onclick="toggleRequestForm()">Cancel</button>
+        `
+    } else {
+        resultDiv.innerHTML = `
+            <p class="success">You qualify for this loan without a guarantor</p>
+            <p>Max loan: ${formatKsh(data.max_loan_without_guarantor)}</p>
+            <p>Remaining borrowing power: ${formatKsh(data.remaining_borrowing_power)}</p>
+            <button type="button" onclick="submitLoanRequest(false)">Submit Request</button>
+            <button type="button" onclick="toggleRequestForm()">Cancel</button>
+        `
+    }
+}
+
+async function submitLoanRequest(needsGuarantor) {
+    const amount = document.getElementById('loanAmount').value
+    const guarantorId = needsGuarantor
+        ? document.getElementById('guarantorSelect').value
+        : null
+
+    if (needsGuarantor && !guarantorId) {
+        document.getElementById('loanRequestMessage').textContent = 'Please select a guarantor'
+        return
+    }
+
+    const response = await fetch('http://127.0.0.1:5000/Chama/request_loan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            memberId: parseInt(memberId),
+            amount: parseFloat(amount),
+            guarantorId: guarantorId ? parseInt(guarantorId) : null
+        })
+    })
+
+    const result = await response.json()
+    const message = document.getElementById('loanRequestMessage')
+
+    if (response.ok) {
+        message.style.color = 'green'
+        message.textContent = result.needs_guarantor
+            ? 'Request submitted. Waiting for guarantor confirmation.'
+            : 'Request submitted. Waiting for admin approval.'
+        document.getElementById('requestFormContainer').innerHTML = ''
+    } else {
+        message.style.color = 'red'
+        message.textContent = result.error
+    }
+}
+    
+const role = localStorage.getItem('role')
+
+fetch('http://127.0.0.1:5000/Chama/view_all_borrowers', {
+    headers: { 'Authorization': `Bearer ${token}` }
+})
+    .then(response => response.json())
+    
+    .then(data => {
+        console.log(data.loans)
+        document.getElementById('NoOfBorrowers').textContent = data.total_borrowers
+
+        const container = document.getElementById('borrower-cards')
+        container.innerHTML = ''
+
+        data.loans.forEach(loan => {
+            const today = new Date()
+            const dueDate = new Date(loan.due_date)
+            const isPastDue = today > dueDate
+            const interest = (loan.amount_borrowed * 0.20).toLocaleString() 
+
+            const card = `
+                <div class="borrower-card">
+                    <h4>${loan.borrower}</h4>
+                    <p>Loan #${loan.loanId} &nbsp;|&nbsp; <span>${loan.date_borrowed}</span></p>
+                    <div class="cards">
+                        <div>
+                            <p><strong>Principal</strong></p>
+                            <p>Ksh ${loan.amount_borrowed.toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <p><strong>Interest</strong></p>
+                            <p>Ksh ${interest}</p>
+                        </div>
+                        <div>
+                            <p><strong>Due Date</strong></p>
+                            <p>${loan.due_date}</p>
+                        </div>
+                        <div>
+                            <p><strong>Status</strong></p>
+                            <p class="${loan.status === 'active' ? 'warning' : loan.status === 'paid' ? 'success' : 'danger'}">
+                                ${loan.status}
+                            </p>
+                        </div>
+                    </div>
+                    ${role === 'Admin' ? `
+                       <button type="button" onclick="markPaidByBorrower(${loan.loanId})">Mark paid by borrower</button>
+                         ${loan.guarantorId ? 
+                        `<button type="button" onclick="markPaidByGuarantor(${loan.loanId})">Mark paid by guarantor</button>` 
+                       : ''}
+` : ''}
+                </div>
+            `
+            container.innerHTML += card
+        })
+    })
+    .catch(error => console.error('Error fetching borrowers:', error))
+   async function markPaidByBorrower(loanId) {
+    if (!confirm('Mark this loan as paid by the borrower?')) return
+
+    const response = await fetch('http://127.0.0.1:5000/Chama/mark_paid_borrower', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ loanId: loanId })
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+        alert(`Loan paid. Total paid: ${formatKsh(result.total_paid)}`)
+        location.reload()
+    } else {
+        alert(result.error)  
+    }
+}
+
+async function markPaidByGuarantor(loanId) {
+    if (!confirm('Mark this loan as paid by the guarantor?')) return
+
+    const response = await fetch('http://127.0.0.1:5000/Chama/mark_paid_guarantor', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ loanId: loanId })
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+        alert(`Loan paid by guarantor. Total paid: ${formatKsh(result.total_paid)}`)
+        location.reload()
+    } else {
+        alert(result.error)
+    }
+}
+    </script>
+    </html>

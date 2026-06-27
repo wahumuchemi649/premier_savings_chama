@@ -1,0 +1,15 @@
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+
+DATABASE_URL = "mysql+pymysql://root:42131607k@localhost:3306/Premier_savings_chama"
+
+# The engine acts as the core interface to the database
+engine = create_engine(DATABASE_URL, echo=False)
+
+# SessionLocal is a class factory for database session objects
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# The base class that maps our Python classes directly to database tables
+Base = declarative_base()

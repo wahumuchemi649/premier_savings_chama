@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Savings Chama</title>
+    <link rel="stylesheet" href="members.css"/>
+    </head>
+    <body>
+        <div class="header">
+<div>
+<h2>Chama Ledger</h2>
+<p>Savings and Loan Management</p>
+</div>
+<div>
+    <h6>Today</h6>
+    <p><script>document.write(new Date().toLocaleDateString());</script></p>
+</div>
+</div><nav class="navbar">
+    <div class="hamburger" onclick="toggleMenu()">
+        ☰
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <a href="Dashboard.html">Dashboard</a>
+        <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+        <a href="Members.html">Members</a>
+        <a href="loans.html">Loans</a>
+        <a href="interest.html">Interest</a>
+        <a href="Fines.html">Fines</a>
+    </div>
+</nav>
+<div class="members-table">
+    <h3>Financial Period</h3>
+    <p id="currentPeriod">Loading current period...</p>
+    <button type="button" onclick="toggleCloseYearConfirm()">Close Financial Year</button>
+    <div id="closeYearContainer"></div>
+    <p id="closeYearMessage"></p>
+</div>
+<div class="members-table">
+    <h3>Bank Interest</h3>
+    <button type="button" onclick="ToggleForm()">What this year's bank Interest??</button>
+    <div id="BankContainer"></div>
+    <div id="bankmessage"></div>
+
+</div>
+<div class="members-table">
+    <h3>Pending Loan Requests</h3>
+    <table>
+        <thead>
+            <tr>
+                <td>Member</td>
+                <td>Amount</td>
+                <td>Guarantor</td>
+                <td>Date Requested</td>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody id="pendingLoansBody"></tbody>
+    </table>
+</div>
+<div class="members-table">
+    <h3>Pending Savings</h3>
+    <table>
+        <thead>
+            <tr>
+                <td>Member</td>
+                <td>Amount</td>
+                <td>Date Requested</td>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody id="pendingSavingsBody"></tbody>
+    </table>
+</div>
+        
+    </body>
+    <script>
+       const token = localStorage.getItem('token')
+const adminId = localStorage.getItem('memberId')
+
+// redirect checks
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('role')
+
+    if (!token) {
+        window.location.href = 'index.html'
+    }
+    if (role !== 'Admin') {
+        window.location.href = 'Dashboard.html'
+    }
+    if(role=='Admin'){
+        document.getElementById('adminLink').style.display = 'block'
+    }
+
+    fetchPendingLoans()
+    fetchPendingSavings()
+    fetchCurrentPeriod()
+
+})
+
+function formatKsh(amount) {
+    return `Ksh ${parseFloat(amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
+}
+
+async function fetchPendingLoans() {
+    const response = await fetch('http://127.0.0.1:5000/Chama/pending_requests', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+
+    const data = await response.json()
+    const tbody = document.getElementById('pendingLoansBody')
+    tbody.innerHTML = ''
+
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No pending loan requests</td></tr>'
+        return
+    }
+
+    data.forEach(req => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${req.member}</td>
+                <td>${formatKsh(req.amount)}</td>
+                <td>${req.guarantor}</td>
+                <td>${req.date_requested}</td>
+                <td>
+                    <button type="button" onclick="verifyLoan(${req.requestId})">
+                        Verify & Approve
+                    </button>
+                </td>
+            </tr>
+        `
+    })
+}
+
+async function verifyLoan(requestId) {
+    const response = await fetch('http://127.0.0.1:5000/Chama/admin_verify_loan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            requestId: requestId,
+            adminId: parseInt(adminId)
+        })
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+        alert(`Loan approved. Due date: ${result.due_date}`)
+        fetchPendingLoans()
+    } else {
+        alert(result.error)
+    }
+}
+async function fetchPendingSavings() {
+    const response = await fetch('http://127.0.0.1:5000/Chama/pending_savings', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+
+    const data = await response.json()
+    const tbody = document.getElementById('pendingSavingsBody')
+    tbody.innerHTML = ''
+
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">No pending savings requests</td></tr>'
+        return
+    }
+
+    data.forEach(req => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${req.member}</td>
+                <td>${formatKsh(req.amount)}</td>
+                <td>${req.date_requested}</td>
+                <td>
+                    <button type="button" onclick="approveSaving(${req.requestId})">
+                        Approve
+                    </button>
+                </td>
+            </tr>
+        `
+    })
+}
+
+async function approveSaving(requestId) {
+    const response = await fetch('http://127.0.0.1:5000/Chama/approve_saving', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            requestId: requestId,
+            adminId: parseInt(adminId)
+        })
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+        alert('Savings approved and recorded')
+        fetchPendingSavings()
+    } else {
+        alert(result.error)
+    }
+}
+function formatDate(dateString) {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-KE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    })
+}
+
+async function fetchCurrentPeriod() {
+    const response = await fetch('http://127.0.0.1:5000/Chama/current_period', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    const data = await response.json()
+
+    if (response.ok) {
+        document.getElementById('currentPeriod').textContent =
+            `Current period: ${formatDate(data.period_start)} — Present`
+    }
+}
+
+function ToggleForm(){
+    const container=document.getElementById('BankContainer')
+    if(container.innerHTML !==''){
+        container.innerHTML=''
+        return
+    }
+    container.innerHTML=`
+    <input type="text" id="amount" placeholder="e.g, 10000" /><br>
+     <input type="date" id="date" placeholder="10-6-2025">
+     <button type="button" onclick=BankInterest()>Save</button>
+    `  
+}
+async function BankInterest(){
+    const data={
+        amount: document.getElementById('amount').value,
+        date:document.getElementById('date').value
+    }
+    const response = await fetch('http://127.0.0.1:5000/Chama/add_bank_interest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' ,
+        'Authorization': `Bearer ${token}`
+    
+        },
+        body: JSON.stringify(data)
+        
+    })
+    const result = await response.json()
+    const message = document.getElementById('bankmessage')
+
+    if(response.ok){
+        message.style.color = 'green'
+        message.textContent = `Bank Interest added`
+        
+        document.getElementById("BankContainer").innerHTML=''
+    }
+    else {
+        message.style.color = 'red'
+        message.textContent = result.error
+    }
+
+}
+function toggleCloseYearConfirm() {
+    const container = document.getElementById('closeYearContainer')
+    if (container.innerHTML !== '') {
+        container.innerHTML = ''
+        return
+    }
+
+    container.innerHTML = `
+        <p style="color:red"><strong>Warning:</strong> This action is irreversible. 
+        A new financial period will begin today.</p>
+        <button type="button" onclick="closeFinancialYear()">Yes, Close Year</button>
+        <button type="button" onclick="toggleCloseYearConfirm()">Cancel</button>
+    `
+}
+
+// ── close the year ────────────────────────────────────────
+async function closeFinancialYear() {
+    const response = await fetch('http://127.0.0.1:5000/Chama/close_year', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ admin_id: parseInt(adminId) })
+    })
+
+    const result = await response.json()
+    const message = document.getElementById('closeYearMessage')
+
+    if (response.ok) {
+        message.style.color = 'green'
+        message.textContent = `Financial year closed. New period started today.`
+        document.getElementById('closeYearContainer').innerHTML = ''
+        fetchCurrentPeriod()  // refresh the period display
+    } else {
+        message.style.color = 'red'
+        message.textContent = result.error
+    }
+}
+
+fetchCurrentPeriod()
+    </script>
+    </html>

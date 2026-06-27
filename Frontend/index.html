@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Premier Savings Chama</title>
+        <link rel="stylesheet" href="Style.css"/>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Chama Ledger</h1>
+            <p>Savings and Loan Management</p>
+        </div>
+
+        <div class="auth-container">
+
+            <div class="auth-tabs">
+                <button type="button" onclick="showTab('signIn')">Sign In</button>
+                <button type="button" onclick="showTab('signUp')">Sign Up</button>
+                <button type="button" onclick="showTab('forgotPassword')">Forgot Password</button>
+                <button type="button" onclick="showTab('setPassword')">Set Password</button>
+            </div>
+
+            <!-- sign in -->
+            <div id="signIn">
+                <h3>Sign In</h3>
+                <p id="signInMessage"></p>
+                <label>Email</label>
+                <input type="email" placeholder="johndoe@example.com" id="loginEmail"/>
+                <label>Password</label>
+                <input type="password" id="loginPassword"/>
+                <button type="button" onclick="SignIn()">Login</button>
+            </div>
+
+            <!-- sign up -->
+            <div id="signUp" style="display:none">
+                <h3>Sign Up</h3>
+                <p id="signUpMessage"></p>
+                <label>First Name</label>
+                <input type="text" placeholder="John" id="firstName"/>
+                <label>Last Name</label>
+                <input type="text" placeholder="Doe" id="lastName"/>
+                <label>Email</label>
+                <input type="email" placeholder="janedoe@example.com" id="email"/>
+                <label>Phone Number</label>
+                <input type="tel" id="phoneNumber"/>
+                <label>Role</label>
+                <select id="roles">
+                    <option value="Admin">Admin</option>
+                    <option value="Member">Member</option>
+                </select>
+                <label>Date of Signup</label>
+                <input type="date" id="date"/>
+                <label>Password</label>
+                <input type="password" placeholder="password" id="password"/>
+                <button type="button" onclick="SignUp()">Sign Up</button>
+            </div>
+
+            <!-- forgot password -->
+            <div id="forgotPassword" style="display:none">
+                <h3>Forgot Password</h3>
+                <p id="forgotMessage"></p>
+                <label>Email</label>
+                <input type="email" placeholder="johndoe@example.com" id="forgotEmail"/>
+                <button type="button" onclick="ForgotPassword()">Send Reset Token</button>
+            </div>
+
+            <!-- set password -->
+            <div id="setPassword" style="display:none">
+                <h3>Set New Password</h3>
+                <p id="setPasswordMessage"></p>
+                <label>Email</label>
+                <input type="email" placeholder="johndoe@example.com" id="setEmail"/>
+                <label>Reset Token</label>
+                <input type="text" placeholder="Paste token here" id="resetToken"/>
+                <label>New Password</label>
+                <input type="password" placeholder="New password" id="newPassword"/>
+                <button type="button" onclick="SetPassword()">Set Password</button>
+            </div>
+
+        </div>
+    </body>
+    <script>
+        function showTab(tabId) {
+            const tabs = ['signIn', 'signUp', 'forgotPassword', 'setPassword']
+            tabs.forEach(tab => {
+                document.getElementById(tab).style.display = 'none'
+            })
+            document.getElementById(tabId).style.display = 'block'
+        }
+
+        async function SignUp() {
+            const data = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phoneNumber').value,
+                roles: document.getElementById('roles').value,
+                date_joined: document.getElementById('date').value,
+                password: document.getElementById('password').value
+            }
+
+            const response = await fetch('http://127.0.0.1:5000/Chama/SignUp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+
+            const result = await response.json()
+            const message = document.getElementById('signUpMessage')
+
+            if (response.status === 409) {
+                message.style.color = 'red'
+                message.textContent = 'Member already exists'
+            } else if (response.ok) {
+                message.style.color = 'green'
+                message.textContent = 'Successfully signed up. Please sign in.'
+                setTimeout(() => showTab('signIn'), 1500)
+            } else {
+                message.style.color = 'red'
+                message.textContent = result.error
+            }
+        }
+
+        async function SignIn() {
+            const data = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            }
+
+            const response = await fetch('http://127.0.0.1:5000/Chama/SignIn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+
+            const result = await response.json()
+            const message = document.getElementById('signInMessage')
+
+            if (response.ok) {
+                message.style.color = 'green'
+                message.textContent = 'Logged in successfully'
+                localStorage.setItem('token', result.token)
+                localStorage.setItem('memberId', result.memberId)
+                localStorage.setItem('name', result.name)
+                localStorage.setItem('role', result.role)
+                window.location.href = 'Dashboard.html'
+            } else {
+                message.style.color = 'red'
+                message.textContent = result.error
+            }
+        }
+
+        async function ForgotPassword() {
+            const data = {
+                email: document.getElementById('forgotEmail').value
+            }
+
+            const response = await fetch('http://127.0.0.1:5000/Chama/forgot_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+
+            const result = await response.json()
+            const message = document.getElementById('forgotMessage')
+
+            if (response.ok) {
+                message.style.color = 'green'
+                message.textContent = `Token generated. Use it to set your new password.`
+                // auto fill set password tab
+                showTab('setPassword')
+                document.getElementById('setEmail').value = data.email
+                document.getElementById('resetToken').value = result.reset_token
+            } else {
+                message.style.color = 'red'
+                message.textContent = result.error
+            }
+        }
+
+        async function SetPassword() {
+            const data = {
+                email: document.getElementById('setEmail').value,
+                reset_token: document.getElementById('resetToken').value,
+                new_password: document.getElementById('newPassword').value
+            }
+
+            const response = await fetch('http://127.0.0.1:5000/Chama/set_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+
+            const result = await response.json()
+            const message = document.getElementById('setPasswordMessage')
+
+            if (response.ok) {
+                message.style.color = 'green'
+                message.textContent = 'Password set successfully. Please sign in.'
+                setTimeout(() => showTab('signIn'), 1500)
+            } else {
+                message.style.color = 'red'
+                message.textContent = result.error
+            }
+        }
+    </script>
+</html>

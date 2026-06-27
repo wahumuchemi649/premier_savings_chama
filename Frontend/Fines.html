@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Savings Chama</title>
+    <link rel="stylesheet" href="members.css"/>
+    </head>
+    <body>
+        <div class="header">
+<div>
+<h2>Chama Ledger</h2>
+<p>Savings and Loan Management</p>
+</div>
+<div>
+    <h6>Today</h6>
+    <p><script>document.write(new Date().toLocaleDateString());</script></p>
+</div>
+</div><nav class="navbar">
+    <div class="hamburger" onclick="toggleMenu()">
+        ☰
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <a href="Dashboard.html">Dashboard</a>
+        <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+        <a href="Members.html">Members</a>
+        <a href="loans.html">Loans</a>
+        <a href="interest.html">Interest</a>
+        <a href="Fines.html">Fines</a>
+    </div>
+</nav>
+        
+    </body>
+    </html>

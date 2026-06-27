@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Savings Chama</title>
+    <link rel="stylesheet" href="members.css"/>
+    </head>
+    <body>
+<div class="header">
+<div>
+<h2>Chama Ledger</h2>
+<p>Savings and Loan Management</p>
+</div>
+<div>
+    <h6>Today</h6>
+    <p><script>document.write(new Date().toLocaleDateString());</script></p>
+</div>
+</div>
+ <nav class="navbar">
+    <div class="hamburger" onclick="toggleMenu()">
+        ☰
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <a href="Dashboard.html">Dashboard</a>
+         <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+        <a href="Members.html">Members</a>
+        <a href="loans.html">Loans</a>
+        <a href="interest.html">Interest</a>
+        <a href="Fines.html">Fines</a>
+    </div>
+</nav>
+<div class="members-table">
+    <h3>Members</h3>
+    <button onclick="toggleForm()">Add Member</button>
+    <div id="formContainer"></div>
+    <p id="addMemberMessage"></p>
+    <table>
+        <thead>
+            <tr>
+                <td>Member</td>
+                <td>Email</td>
+                <td>Date Joined</td>
+                <td>Total Savings</td>
+                <td>Active Loan</td>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <!-- JS will inject rows here -->
+        </tbody>
+    </table>
+</div>
+<div>
+    <h3>Saving rules</h3>
+    <p>Members must save at least <stong>ksh 1000</stong> per month</p>
+    <p>Missing a saving month incurs a fine of <strong>ksh 300</strong></p>
+    <p>Members who join mid-year earn interest only from their join month onwards</p>
+    <p>Please note that if your payment is more than <strong>10 days overdue</strong> ,the guarantor will become responsible for repaying the principal balance along with the interest</p>
+</div>
+    </body>
+    <script>
+        const token = localStorage.getItem('token')
+        if (!token) {
+        window.location.href = 'index.html'  
+        throw new Error('Redirecting to login')// redirect to login if no token
+        }
+        
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('role')
+    
+    if (role === 'Admin') {
+        document.getElementById('adminLink').style.display = 'block'
+    }
+})
+        function toggleForm() {
+    const container = document.getElementById('formContainer')
+
+    // if form already exists, remove it (acts as cancel)
+    if (container.innerHTML !== '') {
+        container.innerHTML = ''
+        return
+    }
+
+    // build the form and inject it into the container
+    container.innerHTML = `
+        <input type="text" id="firstName" placeholder="First Name" /><br>
+        <input type="text" id="lastName" placeholder="Last Name" /><br>
+        <input type="email" id="email" placeholder="Email" /><br>
+        <input type="text" id="phone" placeholder="Phone" /><br>
+        <select id="roles">
+            <option value="Member">Member</option>
+            <option value="Admin">Admin</option>
+        </select><br>
+        <input type="date" id="date_joined" /><br>
+        <button type="button" onclick="addMember()">Submit</button>
+        <button type="button" onclick="toggleForm()">Cancel</button>
+    `
+}
+
+async function addMember() {
+    const data = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        roles: document.getElementById('roles').value,
+        date_joined: document.getElementById('date_joined').value
+    }
+
+    const response = await fetch('http://127.0.0.1:5000/Chama/add_member', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' ,
+        'Authorization': `Bearer ${token}`
+    
+        },
+        body: JSON.stringify(data)
+    })
+
+    const result = await response.json()
+    const message = document.getElementById('addMemberMessage')
+
+    if (response.ok) {
+        message.style.color = 'green'
+        message.textContent = `Member added successfully. ID: ${result.memberId}`
+        // clear the form after success
+        document.getElementById('formContainer').innerHTML = ''
+    } else {
+        message.style.color = 'red'
+        message.textContent = result.error
+    }
+}
+fetch('http://127.0.0.1:5000/Chama/Members',{
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
+})
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        const TableBody = document.getElementById('tbody')
+        TableBody.innerHTML = ''  // ✅ clear the contents, not the variable
+
+        data.forEach(member => {
+            const row = `
+                <tr>
+                    <td>${member.first_name} ${member.last_name}</td>
+                    <td>${member.email}</td>
+                    <td>${member.date_joined}</td>
+                    <td>Ksh ${member.total_savings}</td>
+                    <td>Ksh ${member.total_loans}</td>
+                </tr>
+            `
+            TableBody.innerHTML += row
+        })
+    })
+    .catch(error => console.error('Error fetching members:', error))
+
+    </script>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier Savings Chama</title>
+    <link rel="stylesheet" href="members.css"/>
+    </head>
+    <body>
+        <div class="header">
+<div>
+<h2>Chama Ledger</h2>
+<p>Savings and Loan Management</p>
+</div>
+<div>
+    <h6>Today</h6>
+    <p><script>document.write(new Date().toLocaleDateString());</script></p>
+</div>
+</div>
+        <nav class="navbar">
+    <div class="hamburger" onclick="toggleMenu()">
+        ☰
+    </div>
+
+    <div class="nav-links" id="navLinks">
+        <a href="Dashboard.html">Dashboard</a>
+         <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+        <a href="Members.html">Members</a>
+        <a href="loans.html">Loans</a>
+        <a href="interest.html">Interest</a>
+        <a href="Fines.html">Fines</a>
+    </div>
+</nav>
+<div>
+    <h2>Interest Pool Breakdown</h2>
+    <div class="InterestCards">
+        <div>
+            <p>All members(50%)</p>
+            <p><strong id="allmembers">Ksh. {savings}</strong></p>
+            
+        </div>
+        <div>
+            <p>Borrowers(25%)</p>
+            <p><Strong id="allborrowers">Ksh.{}</Strong></p>
+        </div>
+        <div>
+            <p>Guarantors(25%)</p>
+            <p><Strong id="allguarantors">Ksh. {}</Strong></p>
+        </div>
+    </div>
+    <p>Total Interest for the period: <span id="periodStart"></span>  --  <span id="periodEnd"></span></p>
+</div>
+<div class="member_distribution">
+    <h2>Per Member Distribution</h2>
+    <table>
+        <thead>
+            <td>Member</td>
+            <td>Roles</td>
+            <td>Loan Interest Share</td>
+            <td>Bank Interest</td>
+            <td>Total</td>
+        </thead>
+        <tbody id="tbody">
+
+        </tbody>
+    </table>
+
+</div>
+    </body>
+    <script>
+       
+const token = localStorage.getItem('token')
+if (!token) {
+    window.location.href = 'index.html'
+    throw new Error('Redirecting to login')
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('role')
+    
+    if (role === 'Admin') {
+        document.getElementById('adminLink').style.display = 'block'
+    }
+})
+    function formatDate(dateString) {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-KE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    })
+}
+
+function formatKsh(amount) {
+    return `Ksh ${parseFloat(amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
+}
+
+fetch('http://127.0.0.1:5000/Chama/distribute_interest',{
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
+})
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+
+        
+        document.getElementById('allmembers').textContent  = formatKsh(data.pools.everyone_pool)
+        document.getElementById('allborrowers').textContent = formatKsh(data.pools.borrowers_pool)
+        document.getElementById('allguarantors').textContent = formatKsh(data.pools.guarantors_pool)
+        document.getElementById('periodStart').textContent = formatDate(data.period_start)
+        document.getElementById('periodEnd').textContent   = formatDate(data.period_end)
+        const tableBody = document.getElementById('tbody')
+        tableBody.innerHTML = ''
+
+        data.distribution.forEach(member => {
+            let role = 'Member'
+            if (member.is_borrower && member.is_guarantor) role = 'Borrower & Guarantor'
+            else if (member.is_borrower)  role = 'Borrower'
+            else if (member.is_guarantor) role = 'Guarantor'
+
+            const row = `
+                <tr>
+                    <td>${member.member}</td>
+                    <td>${role}</td>
+                    <td>${formatKsh(member.loan_interest_share)}</td>
+                    <td>${formatKsh(member.bank_interest_share)}</td>
+                    <td><strong>${formatKsh(member.total_share)}</strong></td>
+                </tr>
+            `
+            tableBody.innerHTML += row
+        })
+    })
+    .catch(error => console.error('Error fetching interest distribution:', error))
+    </script>
+    </html>
