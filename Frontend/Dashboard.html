@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premier Savings Chama</title>
+    <script src="config.js"></script>
     <link rel="stylesheet" href="members.css"/>
     </head>
     <body>
@@ -112,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 function fetchTotalSavings() {
-    fetch('http://127.0.0.1:5000/Chama/Total_savings', {
+    fetch(`${BASE_URL}/Chama/Total_savings`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })
         .then(response => response.json())
@@ -124,7 +125,7 @@ function fetchTotalSavings() {
 }
 
 function fetchActiveLoans() {
-    fetch('http://127.0.0.1:5000/Chama/view_all_borrowers', {
+    fetch(`${BASE_URL}/Chama/view_all_borrowers`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })
         .then(response => response.json())
@@ -136,7 +137,7 @@ function fetchActiveLoans() {
 }
 
 function fetchBorrowedInterests() {
-    fetch('http://127.0.0.1:5000/Chama/view_borrowed_interests', {
+    fetch(`${BASE_URL}/Chama/view_borrowed_interests`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })
         .then(response => response.json())
@@ -147,7 +148,7 @@ function fetchBorrowedInterests() {
 }
 
 function fetchBankInterests() {
-    fetch('http://127.0.0.1:5000/Chama/bank_interests', {
+    fetch(`${BASE_URL}/Chama/bank_interests`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })
         .then(response => response.json())
@@ -160,7 +161,7 @@ function fetchBankInterests() {
 }
 
 async function fetchGuarantorNotifications() {
-    const response = await fetch(`http://127.0.0.1:5000/Chama/guarantor_notifications/${memberId}`, {
+    const response = await fetch(`${BASE_URL}/Chama/guarantor_notifications/${memberId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })
 
@@ -185,7 +186,7 @@ async function fetchGuarantorNotifications() {
 }
 
 async function respondToGuarantee(requestId, confirmationId, decision) {
-    const response = await fetch('http://127.0.0.1:5000/Chama/guarantor_confirm', {
+    const response = await fetch(`${BASE_URL}/Chama/guarantor_confirm`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -228,7 +229,7 @@ async function submitSavingsRequest() {
         return
     }
 
-    const response = await fetch('http://127.0.0.1:5000/Chama/request_saving', {
+    const response = await fetch(`${BASE_URL}/Chama/request_saving`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

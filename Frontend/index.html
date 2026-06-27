@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Premier Savings Chama</title>
+        <script src="config.js"></script>
         <link rel="stylesheet" href="Style.css"/>
     </head>
     <body>
@@ -100,7 +101,7 @@
                 password: document.getElementById('password').value
             }
 
-            const response = await fetch('http://127.0.0.1:5000/Chama/SignUp', {
+            const response = await fetch(`${BASE_URL}/Chama/SignUp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -128,7 +129,7 @@
                 password: document.getElementById('loginPassword').value
             }
 
-            const response = await fetch('http://127.0.0.1:5000/Chama/SignIn', {
+            const response = await fetch(`${BASE_URL}/Chama/SignIn`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -156,7 +157,7 @@
                 email: document.getElementById('forgotEmail').value
             }
 
-            const response = await fetch('http://127.0.0.1:5000/Chama/forgot_password', {
+            const response = await fetch(`${BASE_URL}/Chama/forgot_password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -185,7 +186,7 @@
                 new_password: document.getElementById('newPassword').value
             }
 
-            const response = await fetch('http://127.0.0.1:5000/Chama/set_password', {
+            const response = await fetch(`${BASE_URL}/Chama/set_password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)

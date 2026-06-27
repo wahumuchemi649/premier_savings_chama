@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premier Savings Chama</title>
+    <script src="config.js"></script>
     <link rel="stylesheet" href="members.css"/>
     </head>
     <body>
@@ -81,7 +82,7 @@ async function checkViability() {
         return
     }
 
-    const response = await fetch('http://127.0.0.1:5000/Chama/loan_viability', {
+    const response = await fetch(`${BASE_URL}/Chama/loan_viability`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -134,7 +135,7 @@ async function submitLoanRequest(needsGuarantor) {
         return
     }
 
-    const response = await fetch('http://127.0.0.1:5000/Chama/request_loan', {
+    const response = await fetch(`${BASE_URL}/Chama/request_loan`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -164,7 +165,7 @@ async function submitLoanRequest(needsGuarantor) {
     
 const role = localStorage.getItem('role')
 
-fetch('http://127.0.0.1:5000/Chama/view_all_borrowers', {
+fetch(`${BASE_URL}/view_all_borrowers`, {
     headers: { 'Authorization': `Bearer ${token}` }
 })
     .then(response => response.json())
@@ -221,7 +222,7 @@ fetch('http://127.0.0.1:5000/Chama/view_all_borrowers', {
    async function markPaidByBorrower(loanId) {
     if (!confirm('Mark this loan as paid by the borrower?')) return
 
-    const response = await fetch('http://127.0.0.1:5000/Chama/mark_paid_borrower', {
+    const response = await fetch(`${BASE_URL}/Chama/mark_paid_borrower`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -243,7 +244,7 @@ fetch('http://127.0.0.1:5000/Chama/view_all_borrowers', {
 async function markPaidByGuarantor(loanId) {
     if (!confirm('Mark this loan as paid by the guarantor?')) return
 
-    const response = await fetch('http://127.0.0.1:5000/Chama/mark_paid_guarantor', {
+    const response = await fetch(`${BASE_URL}/mark_paid_guarantor`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

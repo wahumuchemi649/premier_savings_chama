@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premier Savings Chama</title>
+    <script src="config.js"></script>
     <link rel="stylesheet" href="members.css"/>
     </head>
     <body>
@@ -108,7 +109,7 @@ async function addMember() {
         date_joined: document.getElementById('date_joined').value
     }
 
-    const response = await fetch('http://127.0.0.1:5000/Chama/add_member', {
+    const response = await fetch(`${BASE_URL}/Chama/add_member`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' ,
         'Authorization': `Bearer ${token}`
@@ -130,7 +131,7 @@ async function addMember() {
         message.textContent = result.error
     }
 }
-fetch('http://127.0.0.1:5000/Chama/Members',{
+fetch(`${BASE_URL}/Chama/Members`,{
     headers: {
         'Authorization': `Bearer ${token}`
     }

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premier Savings Chama</title>
+    <script src="config.js"></script>
     <link rel="stylesheet" href="members.css"/>
     </head>
     <body>
@@ -95,7 +96,7 @@ function formatKsh(amount) {
     return `Ksh ${parseFloat(amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
 }
 
-fetch('http://127.0.0.1:5000/Chama/distribute_interest',{
+fetch(`${BASE_URL}/distribute_interest`,{
     headers: {
         'Authorization': `Bearer ${token}`
     }
