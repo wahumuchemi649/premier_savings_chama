@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Enum, Date, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from Config import Base
+from datetime import date
 
 
 class Members(Base):
@@ -87,7 +88,7 @@ class Financial_Periods(Base):
     __tablename__ = 'Financial_Periods'
 
     periodId = Column(Integer, primary_key=True, autoincrement=True)
-    period_start = Column(Date)
+    period_start = Column(Date, default=date.today())
     period_end = Column(Date, nullable=True)
     closed_by = Column(Integer, ForeignKey('Members.memberId'), nullable=True)
     closed_at = Column(DateTime, default=datetime.utcnow)
