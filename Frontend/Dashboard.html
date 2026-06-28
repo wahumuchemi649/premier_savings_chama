@@ -118,6 +118,7 @@ function fetchTotalSavings() {
     })
         .then(response => response.json())
         .then(data => {
+            console.log('savings data:', data) 
             document.getElementById('savingsAmount').innerHTML = `<strong>Ksh ${data.total_savings}</strong>`
             document.getElementById('total_members').textContent = `${data.total_members} members`
         })

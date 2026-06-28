@@ -96,7 +96,7 @@ function formatKsh(amount) {
     return `Ksh ${parseFloat(amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
 }
 
-fetch(`${BASE_URL}/distribute_interest`,{
+fetch(`${BASE_URL}/Chama/distribute_interest`,{
     headers: {
         'Authorization': `Bearer ${token}`
     }
