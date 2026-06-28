@@ -697,9 +697,9 @@ def total_savings():
 
             saved_this_month = db.query(Savings)\
                 .filter(Savings.memberId == member.memberId)\
-                .filter(func.month(Savings.date_saved) == current_month)\
-                .filter(func.year(Savings.date_saved) == current_year)\
-                .first()
+                .filter(func.extract('month', Savings.date_saved) == current_month)\
+                .filter(func.extract('year', Savings.date_saved) == current_year)\
+                .first()            
 
             savings_list.append({
                 "first_name": member.firstName,
