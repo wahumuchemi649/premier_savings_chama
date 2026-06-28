@@ -156,6 +156,14 @@ fetch(`${BASE_URL}/Chama/Members`,{
         })
     })
     .catch(error => console.error('Error fetching members:', error))
+    function toggleMenu() {
+    const navLinks = document.getElementById('navLinks')
+    if (navLinks.style.display === 'flex') {
+        navLinks.style.display = 'none'
+    } else {
+        navLinks.style.display = 'flex'
+    }
+}
 
     </script>
 

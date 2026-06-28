@@ -165,7 +165,7 @@ async function submitLoanRequest(needsGuarantor) {
     
 const role = localStorage.getItem('role')
 
-fetch(`${BASE_URL}/view_all_borrowers`, {
+fetch(`${BASE_URL}/Chama/view_all_borrowers`, {
     headers: { 'Authorization': `Bearer ${token}` }
 })
     .then(response => response.json())
@@ -244,7 +244,7 @@ fetch(`${BASE_URL}/view_all_borrowers`, {
 async function markPaidByGuarantor(loanId) {
     if (!confirm('Mark this loan as paid by the guarantor?')) return
 
-    const response = await fetch(`${BASE_URL}/mark_paid_guarantor`, {
+    const response = await fetch(`${BASE_URL}/Chama/mark_paid_guarantor`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -260,6 +260,14 @@ async function markPaidByGuarantor(loanId) {
         location.reload()
     } else {
         alert(result.error)
+    }
+}
+function toggleMenu() {
+    const navLinks = document.getElementById('navLinks')
+    if (navLinks.style.display === 'flex') {
+        navLinks.style.display = 'none'
+    } else {
+        navLinks.style.display = 'flex'
     }
 }
     </script>
