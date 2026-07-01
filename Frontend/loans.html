@@ -27,7 +27,7 @@
         <a href="Dashboard.html">Dashboard</a>
          <a href="admin.html" id="adminLink" style="display:none">Admin</a>
         <a href="Members.html">Members</a>
-        <a href="loans.html">Loans</a>
+        <a href="loans.html" class="active">Loans</a>
         <a href="interest.html">Interest</a>
         <a href="Fines.html">Fines</a>
     </div>
@@ -60,6 +60,16 @@ const memberId = localStorage.getItem('memberId')
 
 function formatKsh(amount) {
     return `Ksh ${parseFloat(amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
+}
+function toggleMenu() {
+    console.log('Toggling menu')
+    const navLinks = document.getElementById('navLinks')
+    navLinks.classList.toggle('show');
+    if (navLinks.style.display == 'flex') {
+        navLinks.style.display = 'none'
+    } else {
+        navLinks.style.display = 'flex'
+    }
 }
 
 function toggleRequestForm() {
@@ -262,13 +272,6 @@ async function markPaidByGuarantor(loanId) {
         alert(result.error)
     }
 }
-function toggleMenu() {
-    const navLinks = document.getElementById('navLinks')
-    if (navLinks.style.display === 'flex') {
-        navLinks.style.display = 'none'
-    } else {
-        navLinks.style.display = 'flex'
-    }
-}
+
     </script>
     </html>

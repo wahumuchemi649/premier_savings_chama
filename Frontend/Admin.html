@@ -24,7 +24,7 @@
 
     <div class="nav-links" id="navLinks">
         <a href="Dashboard.html">Dashboard</a>
-        <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+        <a href="admin.html" id="adminLink" style="display:none" class="active">Admin</a>
         <a href="Members.html">Members</a>
         <a href="loans.html">Loans</a>
         <a href="interest.html">Interest</a>
@@ -229,6 +229,16 @@ async function fetchCurrentPeriod() {
             `Current period: ${formatDate(data.period_start)} — Present`
     }
 }
+function toggleMenu() {
+    console.log('Toggling menu')
+    const navLinks = document.getElementById('navLinks')
+    navLinks.classList.toggle('show');
+    if (navLinks.style.display == 'flex') {
+        navLinks.style.display = 'none'
+    } else {
+        navLinks.style.display = 'flex'
+    }
+}
 
 function ToggleForm(){
     const container=document.getElementById('BankContainer')
@@ -312,13 +322,6 @@ async function closeFinancialYear() {
 }
 
 fetchCurrentPeriod()
-function toggleMenu() {
-    const navLinks = document.getElementById('navLinks')
-    if (navLinks.style.display === 'flex') {
-        navLinks.style.display = 'none'
-    } else {
-        navLinks.style.display = 'flex'
-    }
-}
+
     </script>
     </html>

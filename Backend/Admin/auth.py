@@ -14,7 +14,7 @@ def SignUp():
         db = SessionLocal()
         data = request.get_json()
 
-        existing = db.query(Members).filter(Members.email == data['email']).first()
+        existing = db.query(Members).filter((Members.email == data['email']) | (Members.phone == data['phone'])).first()
         if existing:
             return jsonify({"error": "Member already exists"}), 409
 

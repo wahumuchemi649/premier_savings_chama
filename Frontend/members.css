@@ -207,7 +207,7 @@ select:focus {
     z-index: 1000;
 }
 
-.nav-links {
+#navLinks {
     display: flex;
     justify-content: center;
     gap: 15px;

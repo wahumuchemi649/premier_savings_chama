@@ -26,7 +26,7 @@
     <div class="nav-links" id="navLinks">
         <a href="Dashboard.html">Dashboard</a>
          <a href="admin.html" id="adminLink" style="display:none">Admin</a>
-        <a href="Members.html">Members</a>
+        <a href="Members.html" class="active">Members</a>
         <a href="loans.html">Loans</a>
         <a href="interest.html">Interest</a>
         <a href="Fines.html">Fines</a>
@@ -61,19 +61,32 @@
 </div>
     </body>
     <script>
+        
         const token = localStorage.getItem('token')
         if (!token) {
         window.location.href = 'index.html'  
         throw new Error('Redirecting to login')// redirect to login if no token
         }
-        
+
 document.addEventListener('DOMContentLoaded', () => {
+    
     const role = localStorage.getItem('role')
     
     if (role === 'Admin') {
         document.getElementById('adminLink').style.display = 'block'
     }
 })
+function toggleMenu() {
+    console.log('Toggling menu')
+    const navLinks = document.getElementById('navLinks')
+    navLinks.classList.toggle('show');
+    if (navLinks.style.display == 'flex') {
+        navLinks.style.display = 'none'
+    } else {
+        navLinks.style.display = 'flex'
+    }
+}
+
         function toggleForm() {
     const container = document.getElementById('formContainer')
 
@@ -156,15 +169,8 @@ fetch(`${BASE_URL}/Chama/Members`,{
         })
     })
     .catch(error => console.error('Error fetching members:', error))
-    function toggleMenu() {
-    const navLinks = document.getElementById('navLinks')
-    if (navLinks.style.display === 'flex') {
-        navLinks.style.display = 'none'
-    } else {
-        navLinks.style.display = 'flex'
-    }
-}
-
+    
+    
     </script>
 
 </html>

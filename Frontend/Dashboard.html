@@ -24,7 +24,7 @@
     </div>
 
     <div class="nav-links" id="navLinks">
-        <a href="Dashboard.html">Dashboard</a>
+        <a href="Dashboard.html" class="active">Dashboard</a>
         <a href="admin.html" id="adminLink" style="display:none">Admin</a>
         <a href="Members.html">Members</a>
         <a href="loans.html">Loans</a>
@@ -73,7 +73,7 @@
         <div class="bankInterest">
             <h2>Bank Interest</h2>
 <p id="bankInterest">Amount{}</p>
-<p>Split equally among<strong id="members">{}</strong>members</p>
+<p>Split equally among &nbsp;<strong id="members"> {} </strong>&nbsp;members</p>
 <p>Each member gets <strong id="each">ksh {}</strong></p>
 <p></p>
         </div>
@@ -85,6 +85,7 @@
     <p>Please note that if your payment is more than <strong>10 days overdue</strong> ,the guarantor will become responsible for repaying the principal balance along with the interest</p>
 </div>
     </body>
+
     <script>
         
 const token = localStorage.getItem('token')
@@ -104,6 +105,7 @@ function formatKsh(amount) {
 
 document.addEventListener('DOMContentLoaded', () => {
     
+    
 
     fetchTotalSavings()
     fetchActiveLoans()
@@ -111,6 +113,17 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchBankInterests()
     fetchGuarantorNotifications()
 })
+function toggleMenu() {
+    console.log('Toggling menu')
+    const navLinks = document.getElementById('navLinks')
+    navLinks.classList.toggle('show');
+    if (navLinks.style.display == 'flex') {
+        navLinks.style.display = 'none'
+    } else {
+        navLinks.style.display = 'flex'
+    }
+}
+
 
 function fetchTotalSavings() {
     fetch(`${BASE_URL}/Chama/Total_savings`, {
@@ -252,14 +265,6 @@ async function submitSavingsRequest() {
     } else {
         message.style.color = 'red'
         message.textContent = result.error
-    }
-}
-function toggleMenu() {
-    const navLinks = document.getElementById('navLinks')
-    if (navLinks.style.display === 'flex') {
-        navLinks.style.display = 'none'
-    } else {
-        navLinks.style.display = 'flex'
     }
 }
 

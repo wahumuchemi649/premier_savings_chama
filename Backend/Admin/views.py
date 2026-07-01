@@ -125,6 +125,11 @@ def loan_viability(memberId, requested_amount):
 
         potential_guarantors = db.query(Members)\
             .filter(Members.memberId != memberId)\
+            .filter(
+                  db.query(func.sum(Savings.amount))\
+                       .filter(Savings.memberId == Members.memberId)\
+                       .scalar_subquery() * 0.75 > remaining_viability
+    )\
             .all()
 
         guarantors_list = [
