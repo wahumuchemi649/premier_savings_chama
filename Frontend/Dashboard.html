@@ -16,7 +16,9 @@
 <div>
     <h6>Today</h6>
     <p><script>document.write(new Date().toLocaleDateString());</script></p>
+    <button type="button" onclick="logout()">Logout</button>
 </div>
+
 </div>
        <nav class="navbar">
     <div class="hamburger" onclick="toggleMenu()">
@@ -40,7 +42,7 @@
     </div>
 
     <div id="savingsRequest" class="dashboard-card">
-        <button type="button" onclick="toggleSaveForm()">Save</button>
+        <button type="button" onclick="toggleSaveForm()">Add Savings</button>
         <div id="saveFormContainer"></div>
         <p id="saveMessage"></p>
     </div>
@@ -266,6 +268,11 @@ async function submitSavingsRequest() {
         message.style.color = 'red'
         message.textContent = result.error
     }
+}
+function logout() {
+    console.log('Logging out')
+    localStorage.clear()
+    window.location.replace('index.html')
 }
 
     </script>

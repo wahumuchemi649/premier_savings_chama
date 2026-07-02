@@ -1,4 +1,7 @@
+from decimal import Decimal
+
 from flask import request
+from sqlalchemy.sql.elements import literal
 from Config import SessionLocal
 from Admin.models import Guarantor_Confirmations, Loan_History, Loan_Requests, Members,Savings,Loans,Bank_Interests,Loan_Repayments,Interest_Distribution,Financial_Periods, Savings_Requests
 from sqlalchemy import func
@@ -117,22 +120,21 @@ def loan_viability(memberId, requested_amount):
             .filter(Loans.status == 'active')\
             .scalar() or 0
 
-        max_without_guarantor = total_savings * 0.75
+        max_without_guarantor = total_savings *Decimal('0.75')
         remaining_viability = max_without_guarantor - total_active_loans
 
         # needs guarantor if requested amount exceeds remaining borrowing power
         needs_guarantor = requested_amount > remaining_viability
-
         potential_guarantors = db.query(Members)\
-            .filter(Members.memberId != memberId)\
-            .filter(
-                  db.query(func.sum(Savings.amount))\
-                       .filter(Savings.memberId == Members.memberId)\
-                       .scalar_subquery() * 0.75 > remaining_viability
-    )\
-            .all()
+                .filter(Members.memberId != memberId)\
+                .filter(
+                   db.query(func.sum(Savings.amount))\
+                      .filter(Savings.memberId == Members.memberId)\
+                      .scalar_subquery() * 0.75 > remaining_viability
+                )\
+                .all()
 
-        guarantors_list = [
+        guarantors_list= [
             {
                 "memberId": g.memberId,
                 "first_name": g.firstName,

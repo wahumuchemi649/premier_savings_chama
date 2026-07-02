@@ -63,21 +63,21 @@
                 <p id="forgotMessage"></p>
                 <label>Email</label>
                 <input type="email" placeholder="johndoe@example.com" id="forgotEmail"/>
-                <button type="button" onclick="ForgotPassword()">Send Reset Token</button>
+                <button type="button" onclick="ForgotPassword()">Reset to default</button>
             </div>
 
             <!-- set password -->
             <div id="setPassword" style="display:none">
-                <h3>Set New Password</h3>
-                <p id="setPasswordMessage"></p>
-                <label>Email</label>
-                <input type="email" placeholder="johndoe@example.com" id="setEmail"/>
-                <label>Reset Token</label>
-                <input type="text" placeholder="Paste token here" id="resetToken"/>
-                <label>New Password</label>
-                <input type="password" placeholder="New password" id="newPassword"/>
-                <button type="button" onclick="SetPassword()">Set Password</button>
-            </div>
+            <h3>Set New Password</h3>
+            <p id="setPasswordMessage"></p>
+            <label>Email</label>
+            <input type="email" placeholder="johndoe@example.com" id="setEmail"/>
+            <label>Current Password</label>
+            <input type="password" placeholder="Current password" id="currentPassword"/>
+            <label>New Password</label>
+            <input type="password" placeholder="New password" id="newPassword"/>
+            <button type="button" onclick="SetPassword()">Set Password</button>
+            </div> 
 
         </div>
     </body>
@@ -153,56 +153,52 @@
         }
 
         async function ForgotPassword() {
-            const data = {
-                email: document.getElementById('forgotEmail').value
-            }
+    const data = {
+        email: document.getElementById('forgotEmail').value
+    }
 
-            const response = await fetch(`${BASE_URL}/Chama/forgot_password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
+    const response = await fetch(`${BASE_URL}/Chama/forgot_password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
 
-            const result = await response.json()
-            const message = document.getElementById('forgotMessage')
+    const result = await response.json()
+    const message = document.getElementById('forgotMessage')
 
-            if (response.ok) {
-                message.style.color = 'green'
-                message.textContent = `Token generated. Use it to set your new password.`
-                // auto fill set password tab
-                showTab('setPassword')
-                document.getElementById('setEmail').value = data.email
-                document.getElementById('resetToken').value = result.reset_token
-            } else {
-                message.style.color = 'red'
-                message.textContent = result.error
-            }
-        }
-
+    if (response.ok) {
+        message.style.color = 'green'
+        message.textContent = 'Password reset to default. Login with Chama123'
+        setTimeout(() => showTab('signIn'), 2000)
+    } else {
+        message.style.color = 'red'
+        message.textContent = result.error
+    }
+}
         async function SetPassword() {
-            const data = {
-                email: document.getElementById('setEmail').value,
-                reset_token: document.getElementById('resetToken').value,
-                new_password: document.getElementById('newPassword').value
-            }
+    const data = {
+        email: document.getElementById('setEmail').value,
+        current_password: document.getElementById('currentPassword').value,
+        new_password: document.getElementById('newPassword').value
+    }
 
-            const response = await fetch(`${BASE_URL}/Chama/set_password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
+    const response = await fetch(`${BASE_URL}/Chama/set_password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
 
-            const result = await response.json()
-            const message = document.getElementById('setPasswordMessage')
+    const result = await response.json()
+    const message = document.getElementById('setPasswordMessage')
 
-            if (response.ok) {
-                message.style.color = 'green'
-                message.textContent = 'Password set successfully. Please sign in.'
-                setTimeout(() => showTab('signIn'), 1500)
-            } else {
-                message.style.color = 'red'
-                message.textContent = result.error
-            }
-        }
+    if (response.ok) {
+        message.style.color = 'green'
+        message.textContent = 'Password updated successfully. Please sign in.'
+        setTimeout(() => showTab('signIn'), 1500)
+    } else {
+        message.style.color = 'red'
+        message.textContent = result.error
+    }
+}
     </script>
 </html>

@@ -57,6 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })
 const memberId = localStorage.getItem('memberId')
+function formatDate(dateString) {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-KE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    })
+}
+
 
 function formatKsh(amount) {
     return `Ksh ${parseFloat(amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
@@ -208,7 +217,7 @@ fetch(`${BASE_URL}/Chama/view_all_borrowers`, {
                         </div>
                         <div>
                             <p><strong>Due Date</strong></p>
-                            <p>${loan.due_date}</p>
+                            <p>${formatDate(loan.due_date)}</p>
                         </div>
                         <div>
                             <p><strong>Status</strong></p>

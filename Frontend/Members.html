@@ -76,6 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('adminLink').style.display = 'block'
     }
 })
+function formatDate(dateString) {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-KE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    })
+}
 function toggleMenu() {
     console.log('Toggling menu')
     const navLinks = document.getElementById('navLinks')
@@ -98,14 +106,20 @@ function toggleMenu() {
 
     // build the form and inject it into the container
     container.innerHTML = `
+        <label for="firstName">First Name:</label>
         <input type="text" id="firstName" placeholder="First Name" /><br>
+        <label for="lastName">Last Name:</label>
         <input type="text" id="lastName" placeholder="Last Name" /><br>
+        <label for="email">Email:</label>
         <input type="email" id="email" placeholder="Email" /><br>
+        <label for="phone">Phone:</label>
         <input type="text" id="phone" placeholder="Phone" /><br>
+        <label for="roles">Role:</label>
         <select id="roles">
             <option value="Member">Member</option>
             <option value="Admin">Admin</option>
         </select><br>
+        <label for="date_joined">Date Joined:</label>
         <input type="date" id="date_joined" /><br>
         <button type="button" onclick="addMember()">Submit</button>
         <button type="button" onclick="toggleForm()">Cancel</button>
@@ -160,7 +174,7 @@ fetch(`${BASE_URL}/Chama/Members`,{
                 <tr>
                     <td>${member.first_name} ${member.last_name}</td>
                     <td>${member.email}</td>
-                    <td>${member.date_joined}</td>
+                    <td>${formatDate(member.date_joined)}</td>
                     <td>Ksh ${member.total_savings}</td>
                     <td>Ksh ${member.total_loans}</td>
                 </tr>

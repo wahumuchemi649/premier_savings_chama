@@ -124,7 +124,7 @@ async function fetchPendingLoans() {
                 <td>${req.member}</td>
                 <td>${formatKsh(req.amount)}</td>
                 <td>${req.guarantor}</td>
-                <td>${req.date_requested}</td>
+                <td>${formatDate(req.date_requested)}</td>
                 <td>
                     <button type="button" onclick="verifyLoan(${req.requestId})">
                         Verify & Approve
@@ -176,7 +176,7 @@ async function fetchPendingSavings() {
             <tr>
                 <td>${req.member}</td>
                 <td>${formatKsh(req.amount)}</td>
-                <td>${req.date_requested}</td>
+                <td>${formatDate(req.date_requested)}</td>
                 <td>
                     <button type="button" onclick="approveSaving(${req.requestId})">
                         Approve
